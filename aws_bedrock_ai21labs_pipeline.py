@@ -43,7 +43,7 @@ class Pipeline:
             **{
                 "AWS_ACCESS_KEY": os.getenv("AWS_ACCESS_KEY", "your-aws-access-key-here"),
                 "AWS_SECRET_KEY": os.getenv("AWS_SECRET_KEY", "your-aws-secret-key-here"),
-                "AWS_REGION_NAME": os.getenv("AWS_REGION_NAME", "your-aws-region-name-here"),
+                "AWS_REGION_NAME": os.getenv("AWS_REGION_NAME", "us-east-1"),
             }
         )
 
