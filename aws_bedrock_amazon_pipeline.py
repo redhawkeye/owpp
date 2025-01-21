@@ -141,7 +141,7 @@ class Pipeline:
                        "messages": processed_messages,
                        "system": [{'text': system_message if system_message else 'you are an intelligent ai assistant'}],
                        "inferenceConfig": {"temperature": body.get("temperature", 0.5)},
-                       "additionalModelRequestFields": {"top_k": body.get("top_k", 200)}
+                       "additionalModelRequestFields": {}
                        }
             if body.get("stream", False):
                 return self.stream_response(model_id, payload)
