@@ -8,16 +8,20 @@ description: A pipeline for generating text and processing images using the AWS 
 requirements: requests, boto3
 environment_variables: AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_REGION_NAME
 """
-from io import BytesIO
-from typing import List, Union, Generator, Iterator
-from pydantic import BaseModel
-from utils.pipelines.main import pop_system_message
 import base64
 import json
 import logging
+from io import BytesIO
+from typing import List, Union, Generator, Iterator
+
+import boto3
+
+from pydantic import BaseModel
+
 import os
 import requests
-import boto3
+
+from utils.pipelines.main import pop_system_message
 
 
 class Pipeline:
@@ -28,6 +32,11 @@ class Pipeline:
 
     def __init__(self):
         self.type = "manifold"
+        # Optionally, you can set the id and name of the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
+        # The identifier must be unique across all pipelines.
+        # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
+        # self.id = "openai_pipeline"
         self.name = "Bedrock: "
         self.valves = self.Valves(
             **{
@@ -48,14 +57,17 @@ class Pipeline:
 
 
     async def on_startup(self):
+        # This function is called when the server is started.
         print(f"on_startup:{__name__}")
         pass
 
     async def on_shutdown(self):
+        # This function is called when the server is stopped.
         print(f"on_shutdown:{__name__}")
         pass
 
     async def on_valves_updated(self):
+        # This function is called when the valves are updated.
         print(f"on_valves_updated:{__name__}")
         self.bedrock = boto3.client(aws_access_key_id=self.valves.AWS_ACCESS_KEY,
                                     aws_secret_access_key=self.valves.AWS_SECRET_KEY,
@@ -74,7 +86,7 @@ class Pipeline:
         if self.valves.AWS_ACCESS_KEY and self.valves.AWS_SECRET_KEY:
             try:
                 response = self.bedrock.list_foundation_models(byInferenceType='ON_DEMAND')
-                ailist = ['nova-pro', 'j2-ultra', 'jamba-1-5-large', 'claude-3-5', 'command-r']
+                ailist = ['nova-pro', 'jamba-1-5-large', 'claude-3-5', 'command-r']
                 return [
                     {
                         "id": model["modelId"],
@@ -98,6 +110,7 @@ class Pipeline:
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
+        # This is where you can add your custom pipelines like RAG.
         print(f"pipe:{__name__}")
 
         system_message, messages = pop_system_message(messages)
