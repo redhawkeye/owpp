@@ -1,5 +1,5 @@
 """
-title: AWS Bedrock Custom Pipeline
+title: AWS Bedrock Pipeline
 author: redhawkeye
 date: 2025-01-20
 version: 1.0
@@ -86,15 +86,12 @@ class Pipeline:
         if self.valves.AWS_ACCESS_KEY and self.valves.AWS_SECRET_KEY:
             try:
                 response = self.bedrock.list_foundation_models(byInferenceType='ON_DEMAND')
-                ailist = ['nova-pro', 'jamba-1-5-large', 'claude-3-5', 'command-r']
                 return [
                     {
                         "id": model["modelId"],
                         "name": model["modelName"],
                     }
-                    model for model in list_module['modelSummaries']
-                    for ai in ailist
-                    if ai in model['modelId']
+                    for model in response["modelSummaries"]
                 ]
             except Exception as e:
                 print(f"Error: {e}")
@@ -141,7 +138,7 @@ class Pipeline:
                        "messages": processed_messages,
                        "system": [{'text': system_message if system_message else 'you are an intelligent ai assistant'}],
                        "inferenceConfig": {"temperature": body.get("temperature", 0.5)},
-                       "additionalModelRequestFields": {"top_k": body.get("top_k", 200), "top_p": body.get("top_p", 0.9)}
+                       "additionalModelRequestFields": {}
                        }
             if body.get("stream", False):
                 return self.stream_response(model_id, payload)
